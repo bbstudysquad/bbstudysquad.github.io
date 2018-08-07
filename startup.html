@@ -1,0 +1,181 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Rectangle</title>
+
+    <!-- Insert this line above script imports  -->
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+
+    <!--Import jQuery before materialize.js-->
+   <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+    <!--Import Google Icon Font-->
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+   <!-- Compiled and minified CSS -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+
+   <!-- Compiled and minified JavaScript -->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script src="https://www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+    <script src="https://cdn.firebase.com/libs/firebaseui/1.0.1/firebaseui.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/1.0.1/firebaseui.css" />
+
+    <!-- Insert this line after script imports -->
+    <script>if (window.module) module = window.module;</script>
+    
+    <nav>
+      <div class="nav-wrapper cyan">
+        <a href="#!" class="brand-logo center">Rectangle</a>
+        <ul class="left">
+          <li><a class = "modal-trigger" href="#modal1"><i class="material-icons left">add</i>New</a></li>
+          <li><a href="docs.html">Docs</a></li>
+          <li class="active"><a href="startup.html">Projects</a></li>
+        </ul>
+      </div>
+    </nav>
+    <script>
+      // Initialize Firebase
+            var config = {
+                apiKey: "AIzaSyBPTIiLuWjG-matZQ6u_zPboLFlCrZS1BM",
+                authDomain: "rectangle-d6239.firebaseapp.com",
+                databaseURL: "https://rectangle-d6239.firebaseio.com",
+                projectId: "rectangle-d6239",
+                storageBucket: "rectangle-d6239.appspot.com",
+                messagingSenderId: "434491834393"
+            };
+            firebase.initializeApp(config);
+
+            window.onload = function() {
+                if (window.jQuery) {  
+                    // jQuery is loaded  
+                    console.log("JQuery is loaded");
+                } else {
+                    // jQuery is not loaded
+                    console.log("JQuery is not loaded");
+                }
+            }
+    </script>
+    </head>
+  <body class="white">
+    <!-- The surrounding HTML is left untouched by FirebaseUI.
+         Your app may use that space for branding, controls and other customizations.-->
+    <h4 style="padding-left: 1%;"> Projects </h4>
+    <script>
+    $(document).ready(function(){
+        $('.modal').modal();
+    });
+
+
+    firebase.auth().onAuthStateChanged(function(user){
+      var user = firebase.auth().currentUser
+      //console.log(user)
+    })
+
+    function createProjectCard(name,key){
+      var div = document.createElement("div");
+      div.innerHTML = "<div class=\"row\"> <div class=\"col s12 m6\"> <div class=\"card blue-grey lighten-1\"> <div class=\"card-content white-text\"> <span class=\"card-title\">" + name + "</span> </div> <div class=\"card-action\"> <a href=\"project.html?=" + name + "\" class=\"waves-effect waves-light white black-text btn\">Go To Project</a> <a onclick=\"deleteProject(\'" + key + "\')\" class=\"right waves-effect waves-light red lighten-1 btn\">Delete</a></div> </div> </div> </div>"
+      document.body.appendChild(div);
+
+      console.log('done');
+
+
+    }
+
+    function deleteProject(key){
+      console.log('Deleting Project at ' + key);
+      var userId = firebase.auth().currentUser.uid;
+      var ref = firebase.database().ref('/users/' + userId + '/projects/' + key);
+
+      ref.remove();
+      location.reload();
+    }
+
+
+    setTimeout(function(){
+
+      function readProjects(callback) {
+        var userId = firebase.auth().currentUser.uid;
+        var ref = firebase.database().ref('/users/' + userId);
+
+        ref.once( "value", function(snapshot) {
+          var peep = snapshot.val();
+          console.log(peep)
+          $("#progbar").remove();
+            // error will be null, and peep will contain the snapshot
+            callback(null, peep);
+          }, function (error) {
+            // error wil be an Object
+            callback(error)
+        });
+      }
+
+      readProjects(function (err, result) {
+        console.log(result);
+        if (result != null){
+            for(var key in result.projects) {
+                console.log(key)
+                if (result.projects.hasOwnProperty(key)) {
+                    createProjectCard(result.projects[key].id,key)
+                }
+            }
+        }
+      });
+
+
+    }, 2000);
+
+    function createnewproj(){
+      var name = document.getElementById("name").value;
+
+      var uid = firebase.auth().currentUser.uid;
+
+      // A post entry.
+      var postData = {
+        id: name,
+      };
+
+      // Get a key for a new Post.
+      var newPostKey = firebase.database().ref('users/' + uid  + '/projects/').child('posts').push().key;
+
+      var updates = {};
+      updates['/users/' + uid + '/projects/' + newPostKey] = postData;
+
+      firebase.database().ref().update(updates);
+
+      window.location.href = 'project.html?=' + name;
+
+      return;
+    }
+
+    </script>
+
+    <div id="progbar" class="progress">
+      <div class="indeterminate"></div>
+    </div>
+
+    <!-- Modal Structure -->
+  <div id="modal1" class="modal">
+    <div class="modal-content">
+      <h4>New Project</h4>
+      <div class="row">
+        <form class="col s12">
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="name" type="text">
+              <label for="name">Project Name</label>
+            </div>
+        </form>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <a href="#" onclick="createnewproj()" class="modal-action modal-close waves-effect waves-green btn-flat">Create</a>
+      <a href="#" class="modal-action modal-close waves-effect waves-red btn-flat">Cancel</a>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>
