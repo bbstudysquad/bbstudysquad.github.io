@@ -22,6 +22,7 @@
         messagingSenderId: "637583739111"
       };
       firebase.initializeApp(config);
+      
     </script>
   </head>
   <body>
@@ -47,9 +48,35 @@
                       <a class="nav-link" href="#">Settings</a>
                   </li>
                   <form class="form-inline">
-                      <button class="btn btn-light" align="right">New Post</button>
+                      <button class="btn btn-light" data-toggle="modal" data-target="#exampleModal">New Post</button>
                   </form>
           </nav>
     <div id="firebaseui-auth-container"></div>
+
+    <div class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">New Post</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <p>Modal body text goes here.</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
   </body>
+  <script>
+  $('#exampleModal').on('shown.bs.modal', function () {
+    $('#myInput').trigger('focus')
+  })
+  </script>
 </html>
